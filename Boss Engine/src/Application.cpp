@@ -10,6 +10,10 @@
 #include <Additional/Camera.h>
 #include <Additional/Model.h>
 
+#include <ImGui/imgui.h>
+#include <ImGui/imgui_impl_glfw.h>
+#include <ImGui/imgui_impl_opengl3.h>
+
 #include <iostream>
 
 void ProcessInput(GLFWwindow* window);
@@ -17,9 +21,10 @@ void sizebuffer_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+void OnGUI();
 
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+const unsigned int SCR_WIDTH = 1920;
+const unsigned int SCR_HEIGHT = 1080;
 
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 float lastX = SCR_WIDTH / 2.0f;
@@ -57,7 +62,6 @@ int main()
 	glfwSetFramebufferSizeCallback(window, sizebuffer_callback);
 	glfwSetScrollCallback(window, scroll_callback);
 	glfwSetMouseButtonCallback(window, mouse_button_callback);
-	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
@@ -70,6 +74,12 @@ int main()
 	Shader ourShader("Shader/ObjectVertex.vert", "Shader/ObjectFragment.frag");
 	Model ourModel("Model/nanosuit.obj");
 
+	ImGui::CreateContext();
+	ImGui::StyleColorsLight();
+
+	ImGui_ImplGlfw_InitForOpenGL(window, true);
+	ImGui_ImplOpenGL3_Init("#version 330 core");
+
 	glm::mat4 pos = glm::mat4(1.0f);
 	glm::mat4 sca = glm::mat4(1.0f);
 	glm::mat4 model = glm::mat4(1.0f);
@@ -80,17 +90,14 @@ int main()
 	while (!glfwWindowShouldClose(window))
 	{
 		// per-frame time logic
-		// --------------------
 		float currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
 		// input
-		// -----
 		ProcessInput(window);
 
 		// render
-		// ------
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -108,14 +115,40 @@ int main()
 		model = pos * sca;
 		ourModel.Draw(ourShader);
 
+		OnGUI();
+
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
-		// -------------------------------------------------------------------------------
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
 
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
 	glfwTerminate();
 	return 0;
+}
+
+void OnGUI()
+{
+	{
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+
+		ImGui::Begin("Inspector");
+		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+
+		ImGui::Text("Transform");
+		ImGui::InputFloat3("position", &position.x, 3, 0);
+		ImGui::InputFloat3("rotation", rotation, 3, 0);
+		ImGui::InputFloat3("scale", &scale.x, 3, 0);
+
+		ImGui::End();
+	}
+	// render the loaded model
+
+	ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
 void ProcessInput(GLFWwindow* window)
@@ -145,9 +178,13 @@ void sizebuffer_callback(GLFWwindow* window, int width, int height)
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 {
 	if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS)
+	{
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		glfwSetCursorPosCallback(window, mouse_callback);
+	}
 	else
 	{
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 		glfwSetCursorPosCallback(window, NULL);
 		firstMouse = true;
 	}
