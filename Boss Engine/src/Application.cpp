@@ -42,8 +42,12 @@ float eaPitch = 90.0f;
 float eaYaw = 0.0f;
 float eaRoll = 0.0f;
 
+glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+bool useLighting;
+
 int main()
 {
+	//----------------Initialize-----------------//
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -71,22 +75,23 @@ int main()
 
 	glEnable(GL_DEPTH_TEST);
 
+	//---------------------------Load Model & Shaders-------------------------//
 	Shader ourShader("Shader/ObjectVertex.vert", "Shader/ObjectFragment.frag");
 	Model ourModel("Model/nanosuit.obj");
 
+	//---------------ImGui Initialize---------------//
 	ImGui::CreateContext();
 	ImGui::StyleColorsLight();
 
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 330 core");
 
+	//---------Matrix Init----------//
 	glm::mat4 pos = glm::mat4(1.0f);
 	glm::mat4 sca = glm::mat4(1.0f);
 	glm::mat4 model = glm::mat4(1.0f);
 
-	ourShader.setInt("material.diffuse", 0);
-	ourShader.setInt("material.specular", 1);
-
+	//--------Window Loop-----------------//
 	while (!glfwWindowShouldClose(window))
 	{
 		// per-frame time logic
@@ -103,6 +108,15 @@ int main()
 
 		// be sure to activate shader when setting uniforms/drawing objects
 		ourShader.use();
+		ourShader.setVec3("objectColor", 1.0f, 1.0f, 1.0f);
+		ourShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+		ourShader.setVec3("lightPos", lightPos);
+		ourShader.setVec3("viewPos", camera.Position);
+
+		if (useLighting)
+			ourShader.setBool("useLighting", true);
+		else
+			ourShader.setBool("useLighting", false);
 
 		// view/projection transformations
 		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
@@ -142,6 +156,8 @@ void OnGUI()
 		ImGui::InputFloat3("position", &position.x, 3, 0);
 		ImGui::InputFloat3("rotation", rotation, 3, 0);
 		ImGui::InputFloat3("scale", &scale.x, 3, 0);
+
+		ImGui::Checkbox("Use Lighting", &useLighting);
 
 		ImGui::End();
 	}
