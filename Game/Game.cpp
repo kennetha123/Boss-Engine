@@ -1,5 +1,7 @@
 #include <BossEngine.h>
 
+using BossEngine::Application;
+
 class Game : public BossEngine::Application
 {
 public:

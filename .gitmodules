@@ -1,0 +1,3 @@
+[submodule "BossEngine/Externals/spdlog"]
+	path = BossEngine/Externals/spdlog
+	url = https://github.com/gabime/spdlog.git

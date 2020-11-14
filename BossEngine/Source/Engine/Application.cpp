@@ -13,6 +13,9 @@ namespace BossEngine
 
 	void Application::Run()
 	{
-		while (true);
+		while (true)
+		{
+
+		}
 	}
 }
