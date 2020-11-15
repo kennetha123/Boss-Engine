@@ -9,3 +9,5 @@
 #else
 	#error Boss Engine ver 0.0.1 only support Windows x64 Platform!
 #endif
+
+#define BIT(x) (1 << x)

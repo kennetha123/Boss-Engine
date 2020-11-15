@@ -9,3 +9,9 @@ int/
 *.vcxproj
 *.filters
 *.sln
+*.obj
+*.log
+*.tlog
+*.lastbuildstate
+*.idb
+*.pdb

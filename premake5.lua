@@ -36,12 +36,13 @@ project "BossEngine"
 	includedirs
 	{
 		"%{prj.name}/Externals/spdlog/include"
+		"%{prj.name}/Source"
 	}
 	
 	filter "system:windows"
 		cppdialect "C++17"
 		staticruntime "On"
-		systemversion "10.0.18362.0"
+		systemversion "latest"
 		
 		-- Linking input definition.
 		defines
@@ -104,7 +105,7 @@ project "Game"
 	filter "system:windows"
 		cppdialect "C++17"
 		staticruntime "On"
-		systemversion "10.0.18362.0"
+		systemversion "latest"
 		
 		defines
 		{
