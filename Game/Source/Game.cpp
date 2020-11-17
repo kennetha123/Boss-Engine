@@ -1,3 +1,4 @@
+#include "bepch.h"
 #include <BossEngine.h>
 
 using BossEngine::Application;

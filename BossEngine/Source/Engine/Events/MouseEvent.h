@@ -2,8 +2,6 @@
 
 #include "Event.h"
 
-#include <sstream>
-
 namespace BossEngine
 {
 	class BE_API MouseMovedEvent : public Event

@@ -2,9 +2,6 @@
 
 #include "Engine/Core.h"
 
-#include <string>
-#include <functional>
-
 namespace BossEngine
 {
 	enum class EventType
@@ -34,6 +31,7 @@ namespace BossEngine
 		MouseScrolled
 	};
 
+	// register the EventCategory with bit shift.
 	enum EventCategory
 	{
 		None = 0,
@@ -44,10 +42,12 @@ namespace BossEngine
 		EventCategoryMouseButton	= BIT(4)
 	};
 
+// every time this macro gets called, it'll define those three functions for a specific event type.
 #define EVENT_CLASS_TYPE(type)			static EventType GetStaticType() {return EventType::##type; }\
 										virtual EventType GetEventType() const override { return GetStaticType(); }\
 										virtual const char* GetName() const override { return #type; }
 
+// return the category event.
 #define EVENT_CLASS_CATEGORY(category)  virtual int GetCategoryFlags() const override { return category;  }
 
 	class BE_API Event
@@ -71,17 +71,17 @@ namespace BossEngine
 	class EventDispatcher
 	{
 		template<typename T>
-		using EventFn = std::function<bool(T&)>;
+		using EventFunc = std::function<bool(T&)>; //set EventFunc as function pointer to template type.
 	public:
 		EventDispatcher(Event& event)
 			: m_Event(event) {}
 
 		template<typename T>
-		bool Dispatch(EventFn<T> func)
+		bool Dispatch(EventFunc<T> func)
 		{
-			if (m_Event.GetEventType() == T::GetStaticType())
+			if (m_Event.GetEventType() == T::GetStaticType()) // if the event dispatched match with EventFunc.
 			{
-				m_Event.m_Handled = func(*(T*)&m_Event);
+				m_Event.m_Handled = func(*(T*)&m_Event); // event handler to run the function.
 				return true;
 			}
 			return false;
