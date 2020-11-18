@@ -1,3 +1,6 @@
 [submodule "BossEngine/Externals/spdlog"]
 	path = BossEngine/Externals/spdlog
 	url = https://github.com/gabime/spdlog.git
+[submodule "BossEngine/Externals/GLFW"]
+	path = BossEngine/Externals/GLFW
+	url = https://github.com/kennetha123/glfw

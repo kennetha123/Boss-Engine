@@ -12,6 +12,12 @@ workspace "BossEngine"
 	
 outputDir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
+-- include directory relative to folder
+IncludeDir = {}
+IncludeDir["GLFW"] = "BossEngine/Externals/GLFW/include"
+
+include "BossEngine/Externals/GLFW"
+
 -------------------------------------------------------------------------------------
 ------------------------ Engine project ---------------------------------------------	
 -------------------------------------------------------------------------------------
@@ -39,8 +45,15 @@ project "BossEngine"
 	-- include external libs.
 	includedirs
 	{
+		"%{prj.name}/Source",
 		"%{prj.name}/Externals/spdlog/include",
-		"%{prj.name}/Source"
+		"%{IncludeDir.GLFW}"
+	}
+	
+	links
+	{
+		"GLFW",
+		"opengl32.lib"
 	}
 	
 	filter "system:windows"
@@ -58,7 +71,7 @@ project "BossEngine"
 		-- we're copying the .dll file from Engine to the game .exe
 		postbuildcommands
 		{
-			"{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputDir .. "/Game"
+			("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputDir .. "/Game")
 		}
 		
 -- filter configuration of VS
