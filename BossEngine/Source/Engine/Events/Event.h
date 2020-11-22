@@ -1,5 +1,6 @@
 #pragma once
 
+#include "bepch.h"
 #include "Engine/Core.h"
 
 namespace BossEngine
@@ -35,11 +36,11 @@ namespace BossEngine
 	enum EventCategory
 	{
 		None = 0,
-		EventCategoryApplication	= BIT(0),
-		EventCategoryInput			= BIT(1),
-		EventCategoryKeyboard		= BIT(2),
-		EventCategoryMouse			= BIT(3),
-		EventCategoryMouseButton	= BIT(4)
+		EventCategoryApplication    = BIT(0),
+		EventCategoryInput          = BIT(1),
+		EventCategoryKeyboard       = BIT(2),
+		EventCategoryMouse          = BIT(3),
+		EventCategoryMouseButton    = BIT(4)
 	};
 
 // every time this macro gets called, it'll define those three functions for a specific event type.
@@ -52,8 +53,9 @@ namespace BossEngine
 
 	class BE_API Event
 	{
-		friend class EventDispatcher;
 	public:
+		bool Handled = false;
+
 		virtual EventType GetEventType() const = 0;
 		virtual const char* GetName() const = 0;
 		virtual int GetCategoryFlags() const = 0;
@@ -63,9 +65,6 @@ namespace BossEngine
 		{
 			return GetCategoryFlags() & category;
 		}
-
-	protected:
-		bool m_Handled = false;
 	};
 
 	class EventDispatcher
@@ -81,7 +80,7 @@ namespace BossEngine
 		{
 			if (m_Event.GetEventType() == T::GetStaticType()) // if the event dispatched match with EventFunc.
 			{
-				m_Event.m_Handled = func(*(T*)&m_Event); // event handler to run the function.
+				m_Event.Handled = func(*(T*)&m_Event); // event handler to run the function.
 				return true;
 			}
 			return false;

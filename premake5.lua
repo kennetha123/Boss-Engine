@@ -77,15 +77,18 @@ project "BossEngine"
 -- filter configuration of VS
 	filter "configurations:Debug"
 		defines "BE_DEBUG"
+		buildoptions "/MDd"
 		symbols "On"
 	
 	filter "configurations:Release"
 		defines "BE_RELEASE"
-		symbols "On"
+		buildoptions "/MD"
+		optimize "On"
 	
 	filter "configurations:Distribution"
 		defines "BE_DIST"
-		symbols "On"	
+		buildoptions "/MD"
+		optimize "On"	
 		
 		
 -------------------------------------------------------------------------------------
@@ -132,12 +135,15 @@ project "Game"
 -- filter configuration of VS		
 	filter "configurations:Debug"
 		defines "BE_DEBUG"
+		buildoptions "/MDd"	
 		symbols "On"
 	
 	filter "configurations:Release"
 		defines "BE_RELEASE"
-		symbols "On"
+		buildoptions "/MD"	
+		optimize "On"
 	
 	filter "configurations:Distribution"
 		defines "BE_DIST"
-		symbols "On"	
+		buildoptions "/MD"
+		optimize "On"	
