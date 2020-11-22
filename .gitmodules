@@ -7,3 +7,4 @@
 [submodule "BossEngine/Externals/imgui"]
 	path = BossEngine/Externals/imgui
 	url = https://github.com/kennetha123/imgui
+	branch = master
