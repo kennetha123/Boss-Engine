@@ -15,8 +15,10 @@ outputDir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 -- include directory relative to folder
 IncludeDir = {}
 IncludeDir["GLFW"] = "BossEngine/Externals/GLFW/include"
+IncludeDir["Glad"] = "BossEngine/Externals/Glad/include"
 
 include "BossEngine/Externals/GLFW"
+include "BossEngine/Externals/Glad"
 
 -------------------------------------------------------------------------------------
 ------------------------ Engine project ---------------------------------------------	
@@ -47,12 +49,14 @@ project "BossEngine"
 	{
 		"%{prj.name}/Source",
 		"%{prj.name}/Externals/spdlog/include",
-		"%{IncludeDir.GLFW}"
+		"%{IncludeDir.GLFW}",
+		"%{IncludeDir.Glad}"
 	}
 	
 	links
 	{
 		"GLFW",
+		"Glad",
 		"opengl32.lib"
 	}
 	
