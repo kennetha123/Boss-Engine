@@ -25,6 +25,7 @@ public:
 	Game()
 	{
 		PushLayer(new ExampleLayer());
+		PushOverlay(new BossEngine::ImGuiLayer());
 	}
 
 	~Game()

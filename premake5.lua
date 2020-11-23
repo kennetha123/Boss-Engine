@@ -16,7 +16,7 @@ outputDir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 IncludeDir = {}
 IncludeDir["GLFW"] = "BossEngine/Externals/GLFW/include"
 IncludeDir["Glad"] = "BossEngine/Externals/Glad/include"
-IncludeDir["ImGui"] = "BossEngine/Externals/imgui/include"
+IncludeDir["ImGui"] = "BossEngine/Externals/imgui"
 
 include "BossEngine/Externals/GLFW"
 include "BossEngine/Externals/Glad"
