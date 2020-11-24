@@ -6,7 +6,7 @@
 int main(int argc, char** argv)
 {	
 	BossEngine::Log::Init();
-	BE_CORE_ERROR("Init Log!");
+	BE_CORE_INFO("Init Log!");
 	auto app = BossEngine::CreateApplication();
 	app->Run();
 	delete app;

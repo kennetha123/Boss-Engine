@@ -16,8 +16,8 @@ namespace BossEngine
 
 	Application::Application()
 	{
-		BE_CORE_ASSERT(Instance, "Application Already Exist!");
-		Application::Instance = this;
+		BE_CORE_ASSERT(!Instance, "Application Already Exist!");
+		Instance = this;
 
 		m_Window = std::unique_ptr<Window>(Window::Create());
 		m_Window->SetEventCallback(BIND_EVENT_FN(OnEvent));
