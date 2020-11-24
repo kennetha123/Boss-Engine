@@ -4,7 +4,8 @@
 #include "Engine/Log.h"
 
 #include <glad/glad.h>
-#include <GLFW/glfw3.h>
+
+#include "Input.h"
 
 namespace BossEngine
 {
@@ -67,6 +68,9 @@ namespace BossEngine
 			{
 				layer->OnUpdate();
 			}
+
+			auto [x, y] = Input::GetMousePosition();
+			BE_CORE_TRACE( "{0}, {1}", x, y );
 
 			m_Window->OnUpdate();
 		}
