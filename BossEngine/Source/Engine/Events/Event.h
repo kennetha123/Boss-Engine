@@ -24,6 +24,7 @@ namespace BossEngine
 		// key
 		KeyPressed,
 		KeyReleased,
+		KeyTyped,
 		
 		// mouse
 		MouseButtonPressed,
