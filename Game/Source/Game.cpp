@@ -10,12 +10,20 @@ public:
 
 	void OnUpdate() override
 	{
-		BE_INFO("ExampleLayer::Updated");
+		if (BossEngine::Input::IsKeyPressed(BE_KEY_TAB))
+		{
+			BE_TRACE("Key Tab pressed!");
+		}
 	}
 
 	void OnEvent(BossEngine::Event& event) override
 	{
-		BE_TRACE("{0}", event);
+		//BE_TRACE("{0}", event);
+		if (event.GetEventType() == BossEngine::EventType::KeyPressed)
+		{
+			BossEngine::KeyPressedEvent& e = (BossEngine::KeyPressedEvent&)event;
+			BE_TRACE("{0}", (char)e.GetKeyCode());
+		}
 	}
 };
 
