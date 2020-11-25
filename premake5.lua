@@ -18,6 +18,7 @@ IncludeDir = {}
 IncludeDir["GLFW"] = "BossEngine/Externals/GLFW/include"
 IncludeDir["Glad"] = "BossEngine/Externals/Glad/include"
 IncludeDir["ImGui"] = "BossEngine/Externals/imgui"
+IncludeDir["glm"] = "BossEngine/Externals/glm"
 
 include "BossEngine/Externals/GLFW"
 include "BossEngine/Externals/Glad"
@@ -46,7 +47,9 @@ project "BossEngine"
 	files
 	{
 		"%{prj.name}/Source/**.h",
-		"%{prj.name}/Source/**.cpp"		
+		"%{prj.name}/Source/**.cpp",
+		"%{prj.name}/Externals/glm/glm/**.hpp",		
+		"%{prj.name}/Externals/glm/glm/**.inl"		
 	}
 	
 	-- include external libs.
@@ -56,7 +59,8 @@ project "BossEngine"
 		"%{prj.name}/Externals/spdlog/include",
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.Glad}",
-		"%{IncludeDir.ImGui}"
+		"%{IncludeDir.ImGui}",
+		"%{IncludeDir.glm}"
 	}
 	
 	links
@@ -117,14 +121,15 @@ project "Game"
 	files
 	{
 		"%{prj.name}/Source/**.h",
-		"%{prj.name}/Source/**.cpp"		
+		"%{prj.name}/Source/**.cpp"	
 	}
 	
 	-- including all External libs + Engine
 	includedirs
 	{
 		"BossEngine/Externals/spdlog/include",
-		"BossEngine/Source"
+		"BossEngine/Source",
+		"%{IncludeDir.glm}"
 	}
 	
 	-- Add linking to the engine so the game can use Engine API.
