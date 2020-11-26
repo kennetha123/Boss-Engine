@@ -129,6 +129,7 @@ project "Game"
 	{
 		"BossEngine/Externals/spdlog/include",
 		"BossEngine/Source",
+		"BossEngine/Externals",
 		"%{IncludeDir.glm}"
 	}
 	

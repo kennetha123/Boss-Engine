@@ -10,6 +10,7 @@ public:
 
 	void OnUpdate() override
 	{
+		// Check if player pressing Tab
 		if (BossEngine::Input::IsKeyPressed(BE_KEY_TAB))
 		{
 			BE_TRACE("Key Tab pressed!");
@@ -19,6 +20,8 @@ public:
 	void OnEvent(BossEngine::Event& event) override
 	{
 		//BE_TRACE("{0}", event);
+
+		//Check player typing
 		if (event.GetEventType() == BossEngine::EventType::KeyPressed)
 		{
 			BossEngine::KeyPressedEvent& e = (BossEngine::KeyPressedEvent&)event;
@@ -33,7 +36,6 @@ public:
 	Game()
 	{
 		PushLayer(new ExampleLayer());
-		PushOverlay(new BossEngine::ImGuiLayer());
 	}
 
 	~Game()
