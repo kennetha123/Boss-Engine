@@ -1,0 +1,13 @@
+[submodule "BossEngine/Externals/spdlog"]
+	path = BossEngine/Externals/spdlog
+	url = https://github.com/gabime/spdlog.git
+[submodule "BossEngine/Externals/GLFW"]
+	path = BossEngine/Externals/GLFW
+	url = https://github.com/kennetha123/glfw
+[submodule "BossEngine/Externals/imgui"]
+	path = BossEngine/Externals/imgui
+	url = https://github.com/kennetha123/imgui
+	branch = master
+[submodule "BossEngine/Externals/glm"]
+	path = BossEngine/Externals/glm
+	url = https://github.com/g-truc/glm
