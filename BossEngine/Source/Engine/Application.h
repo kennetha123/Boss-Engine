@@ -8,6 +8,8 @@
 
 #include "Engine/ImGui/ImGuiLayer.h"
 
+#include "Engine/Renderer/Shader.h"
+
 namespace BossEngine
 {
 	class BE_API Application
@@ -38,6 +40,7 @@ namespace BossEngine
 		unsigned int m_VertexArray;
 		unsigned int m_VertexBuffer;
 		unsigned int m_IndexBuffer;
+		std::unique_ptr<Shader> m_Shader;
 
 		static Application* Instance;
 	};
