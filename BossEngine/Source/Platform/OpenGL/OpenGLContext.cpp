@@ -16,6 +16,10 @@ namespace BossEngine
 		int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 		BE_CORE_ASSERT(status, "Failed to Initialize Glad!");
 
+		BE_CORE_INFO("OpenGL Renderer Information :");
+		BE_CORE_INFO("Vendor   : {0}", glGetString(GL_VENDOR));
+		BE_CORE_INFO("Renderer : {0}", glGetString(GL_RENDERER));
+		BE_CORE_INFO("Version  : {0}", glGetString(GL_VERSION));
 	}
 
 	void OpenGLContext::SwapBuffers()
