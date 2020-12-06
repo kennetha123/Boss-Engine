@@ -14,79 +14,49 @@ namespace BossEngine
 
 	Application* Application::Instance = nullptr;
 
-	static GLenum ShaderDataTypeToOpenGLBaseType(ShaderDataType type)
-	{
-		switch (type)
-		{
-		case ShaderDataType::Float:		return GL_FLOAT;
-		case ShaderDataType::Float2:	return GL_FLOAT;
-		case ShaderDataType::Float3:	return GL_FLOAT;
-		case ShaderDataType::Float4:	return GL_FLOAT;
-		case ShaderDataType::Mat3:		return GL_FLOAT;
-		case ShaderDataType::Mat4:		return GL_FLOAT;
-		case ShaderDataType::Int:		return GL_INT;
-		case ShaderDataType::Int2:		return GL_INT;
-		case ShaderDataType::Int3:		return GL_INT;
-		case ShaderDataType::Int4:		return GL_INT;
-		case ShaderDataType::Bool:		return GL_BOOL;
-		}
-
-		BE_CORE_ASSERT(false, "Unknown ShaderDataType !");
-		return 0;
-	}
-
 	Application::Application()
 	{
+		// Check application is already created Instance.
 		BE_CORE_ASSERT(!Instance, "Application Already Exist!");
 		Instance = this;
 
+		// Create window and setting Event Callback.
 		m_Window = std::unique_ptr<Window>(Window::Create());
 		m_Window->SetEventCallback(BIND_EVENT_FN(OnEvent));
 
+		// Setup ImGui on Application.
 		m_ImGuiLayer = new ImGuiLayer();
 		PushOverlay(m_ImGuiLayer);
 
-		glGenVertexArrays(1, &m_VertexArray);
-		glBindVertexArray(m_VertexArray);
+//////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////// RENDERING /////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////
 
-		float vertices[3 * 7] =
+		// NOTE : To create an image, we need 3 things to set up :
+		// Vertex Array (VAO) , Vertex Buffer (VBO) , and Element Buffer (EBO)
+		// So we will create VB first, then set up the VA and combine it on EB.
+
+//////////////////////////////////////////////////////////////////////////////////////////
+						//WILL BE DELETED LATER ON//
+//////////////////////////////////////////////////////////////////////////////////////////
+		// Verts & Indices
+
+		// Vertices data, this will be setup in DCC (digital content creator)
+		float vertices[4 * 7] =
 		{
 			// Position				// Color
-		   -0.5f, -0.5f, 0.0f,	 1.0f,	0.0f, 0.0f, 1.0f,
-			0.5f, -0.5f, 0.0f,	 0.0f,  1.0f, 0.0f, 1.0f,
-			0.0f,  0.5f, 0.0f,	 0.0f,  0.0f, 1.0f, 1.0f
+		   -0.5f, -0.5f, 0.0f,	 1.0f,	0.0f, 0.0f, 1.0f,	// bottom left
+			0.5f, -0.5f, 0.0f,	 0.0f,  0.0f, 1.0f, 1.0f,	// bottom right
+		   -0.5f,  0.5f, 0.0f,	 0.0f,  0.0f, 1.0f, 1.0f,	// top left
+			0.5f,  0.5f, 0.0f,	 0.0f,  1.0f, 0.0f, 1.0f,	// top right
 		};
 
-		m_VertexBuffer.reset(VertexBuffer::Create(vertices, sizeof(vertices)));
+		// Create Indices data. This should be in DCC later on.
+		unsigned int indices[6] = { 0, 1, 2, 1, 2, 3 };
 
-		{
-			BufferLayout layout =
-			{
-				{ ShaderDataType::Float3, "a_Position" },
-				{ ShaderDataType::Float4, "a_Color" }
-			};
+//////////////////////////////////////////////////////////////////////////////////////////
+		// Vertex Shader and Fragment Shader.
 
-			m_VertexBuffer->SetLayout(layout);
-		}
-
-		uint32_t index = 0;
-		const auto& layout = m_VertexBuffer->GetLayout();
-
-		for (const auto& elements : layout)
-		{
-			glEnableVertexAttribArray(index);
-			glVertexAttribPointer(index, elements.GetComponentCount(), 
-				ShaderDataTypeToOpenGLBaseType(elements.Type), 
-				elements.Normalized ? GL_TRUE : GL_FALSE, 
-				layout.GetStride(),
-				(const void*)elements.Offset);
-			index++;
-		}
-
-
-		unsigned int indices[3] = { 0,1,2 };
-		m_IndexBuffer.reset(IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t)));
-	
 		std::string vertexSource = R"(
 			#version 330
 			
@@ -114,9 +84,39 @@ namespace BossEngine
 				color = v_Color;
 			}		
 		)";
+//////////////////////////////////////////////////////////////////////////////////////////
 
+		// Create Vertex Array
+		m_VertexArray.reset(VertexArray::Create());
 
+		// Create Vertex Buffer (need vertices data)
+		m_VertexBuffer.reset(VertexBuffer::Create(vertices, sizeof(vertices)));
+
+		// Create Buffer Layout so we can transform vertices data
+		// into shader data.
+		BufferLayout layout =
+		{
+			{ ShaderDataType::Float3, "a_Position" },
+			{ ShaderDataType::Float4, "a_Color" }
+		};
+
+		// Set the layout into our Vertex Buffer.
+		m_VertexBuffer->SetLayout(layout);
+
+		// Add Vertex Buffer that has Layout into Vertex Array.
+		// Make sure the Vertex Buffer already had a layout.
+		m_VertexArray->AddVertexBuffer(m_VertexBuffer);
+
+		// Set ( Index Buffer / Element Buffer ) with indices.
+		m_IndexBuffer.reset(IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t)));
+
+		// Vertex Array set the IBO / EBO.
+		m_VertexArray->SetIndexBuffer(m_IndexBuffer);
+	
+		// Set Vertex and Fragment Shader.
 		m_Shader.reset(new Shader(vertexSource, fragmentSource));
+
+//////////////////////////////////////////////////////////////////////////////////////////
 	}
 
 	Application::~Application()
@@ -141,6 +141,7 @@ namespace BossEngine
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(OnWindowClose));
 
+		// Print all event.
 		//BE_CORE_TRACE("{0}", e);
 
 		for (auto it = m_LayerStack.end(); it != m_LayerStack.begin();)
@@ -157,12 +158,13 @@ namespace BossEngine
 	{
 		while (m_Running)
 		{
+			// Clear background screen.
 			glClearColor(0.1f, 0.1f, 0.1f, 1);
 			glClear(GL_COLOR_BUFFER_BIT);
 
 			m_Shader->Bind();
-			glBindVertexArray(m_VertexArray);
-			glDrawElements(GL_TRIANGLES, m_IndexBuffer->GetCount(), GL_UNSIGNED_INT, nullptr);
+			m_VertexArray->Bind();
+			glDrawElements(GL_TRIANGLES, m_VertexArray->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, nullptr);
 
 			for (Layer* layer : m_LayerStack)
 				layer->OnUpdate();
