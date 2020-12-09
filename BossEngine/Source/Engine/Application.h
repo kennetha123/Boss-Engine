@@ -44,9 +44,6 @@ namespace BossEngine
 		std::shared_ptr<IndexBuffer> m_IndexBuffer;
 
 		static Application* Instance;
-
-		std::shared_ptr<VertexArray> m_SquareVA;
-
 	};
 
 	// define Engine in Client-side.

@@ -9,12 +9,12 @@ namespace BossEngine
 	{
 		switch (Renderer::GetAPI())
 		{
-		case RendererAPI::None:
+		case RendererAPI::API::None:
 			BE_CORE_ASSERT(false, "RendererAPI::None is currently not supported.");
 			return nullptr;
-		case RendererAPI::OpenGL:
+		case RendererAPI::API::OpenGL:
 			return new OpenGLVertexArray();
-		case RendererAPI::Direct3D11:
+		case RendererAPI::API::Direct3D11:
 			BE_CORE_ASSERT(false, "RendererAPI::Direct3D11 is currently not supported.");
 			return nullptr;
 

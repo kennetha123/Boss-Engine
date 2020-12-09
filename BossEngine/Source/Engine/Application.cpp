@@ -3,7 +3,7 @@
 
 #include "Engine/Log.h"
 
-#include <glad/glad.h>
+#include "Engine/Renderer/Renderer.h"
 
 #include "Input.h"
 
@@ -158,20 +158,30 @@ namespace BossEngine
 	{
 		while (m_Running)
 		{
-			// Clear background screen.
-			glClearColor(0.1f, 0.1f, 0.1f, 1);
-			glClear(GL_COLOR_BUFFER_BIT);
+			// Rendering
+			RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
+			RenderCommand::Clear();
 
-			m_Shader->Bind();
-			m_VertexArray->Bind();
-			glDrawElements(GL_TRIANGLES, m_VertexArray->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, nullptr);
+			{
+				Renderer::BeginScene();
 
+				m_Shader->Bind();
+				Renderer::Submit(m_VertexArray);
+
+				Renderer::EndScene();
+			}
+
+			// Layering
 			for (Layer* layer : m_LayerStack)
+			{
 				layer->OnUpdate();
+			}
 
 			m_ImGuiLayer->Begin();
 			for (Layer* layer : m_LayerStack)
+			{
 				layer->OnImGuiRender();
+			}
 			m_ImGuiLayer->End();
 
 			m_Window->OnUpdate();
