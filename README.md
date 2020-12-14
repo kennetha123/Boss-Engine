@@ -1,12 +1,27 @@
 # Boss-Engine
 
-Welcome to my Game Engine! Through this engine i will study most of opengl using GLFW and GLAD.
-The code written in C++ and i hope we can learn something together through this engine learning.
+An Engine for learning purpose, written in C++ and aimed to be a lightweight, focused on Windows architecture.
+This engine will following what Unity 3D engine core features had, in the future.
 
-Libraries include in the engine :
+## Required Tool :
 
-- GLFW
-- GLAD
-- Assimp
-- glm
-- ImGUI
+- Visual Studio 2019
+- Windows 10 or later (only support x64 right now)
+
+## How to install :
+
+- Run GenerateProjects.bat
+- Open BossEngine.sln
+- Compile and build the project, and you ready to go!
+
+## Roadmap :
+
+- Complete Rendering API abstraction for Boss Engine
+- Camera + Control
+- Material System
+- Independent Shader
+- Textures
+- Profiling
+- Scene Viewport
+- Scene Management
+- TBD
