@@ -11,6 +11,9 @@
 #include "Engine/Renderer/Shader.h"
 #include "Engine/Renderer/Buffer.h"
 #include "Engine/Renderer/VertexArray.h"
+
+#include "Engine/Renderer/OrthographicCamera.h"
+
 namespace BossEngine
 {
 	class BE_API Application
@@ -42,6 +45,8 @@ namespace BossEngine
 		std::shared_ptr<VertexArray> m_VertexArray;
 		std::shared_ptr<VertexBuffer> m_VertexBuffer;
 		std::shared_ptr<IndexBuffer> m_IndexBuffer;
+
+		OrthographicCamera m_Camera;
 
 		static Application* Instance;
 	};
