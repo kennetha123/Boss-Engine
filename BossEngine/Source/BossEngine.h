@@ -5,6 +5,8 @@
 #include "Engine/Layer.h"
 #include "Engine/Log.h"
 
+#include "Engine/Core/DeltaTime.h"
+
 #include "Engine/Input.h"
 #include "Engine/MouseButtonCodes.h"
 #include "Engine/KeyCode.h"

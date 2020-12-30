@@ -6,6 +6,8 @@
 #include "Engine/Events/Event.h"
 #include "Engine/Events/ApplicationEvent.h"
 
+#include "Engine/Core/DeltaTime.h"
+
 #include "Engine/ImGui/ImGuiLayer.h"
 
 namespace BossEngine
@@ -34,6 +36,8 @@ namespace BossEngine
 		ImGuiLayer* m_ImGuiLayer;
 		bool m_Running = true;
 		LayerStack m_LayerStack;
+
+		float m_LastFrameTime = 0.0f;
 
 		static Application* Instance;
 	};

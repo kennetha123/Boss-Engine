@@ -7,6 +7,8 @@
 
 #include "Input.h"
 
+#include <GLFW/glfw3.h>
+
 namespace BossEngine
 {
 
@@ -23,6 +25,7 @@ namespace BossEngine
 		// Create window and setting Event Callback.
 		m_Window = std::unique_ptr<Window>(Window::Create());
 		m_Window->SetEventCallback(BIND_EVENT_FN(OnEvent));
+		m_Window->SetVSync(true);
 
 		// Setup ImGui on Application.
 		m_ImGuiLayer = new ImGuiLayer();
@@ -68,10 +71,14 @@ namespace BossEngine
 	{
 		while (m_Running)
 		{
+			float time = static_cast<float>(glfwGetTime());
+			DeltaTime deltaTime = time - m_LastFrameTime;
+			m_LastFrameTime = time;
+
 			// Layering
 			for (Layer* layer : m_LayerStack)
 			{
-				layer->OnUpdate();
+				layer->OnUpdate(deltaTime);
 			}
 
 			m_ImGuiLayer->Begin();

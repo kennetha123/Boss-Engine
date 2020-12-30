@@ -6,7 +6,7 @@ public:
 	ExampleLayer() : Layer("Example"), m_Camera(-1.6f, 1.6f, -0.9f, 0.9f), m_CameraPosition(0.0f)
 
 	{
-		//////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////// RENDERING /////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
 
@@ -101,22 +101,24 @@ public:
 
 	}
 
-	void OnUpdate() override
+	void OnUpdate(BossEngine::DeltaTime deltaTime) override
 	{
+		BE_TRACE("Delta time : {0}s / {1}ms", deltaTime.GetSeconds(), deltaTime.GetMilliSeconds());
+
 		if (BossEngine::Input::IsKeyPressed(BE_KEY_LEFT))
-			m_CameraPosition.x -= m_CameraPosSpeed;
+			m_CameraPosition.x -= m_CameraPosSpeed * deltaTime;
 		else if (BossEngine::Input::IsKeyPressed(BE_KEY_RIGHT))
-			m_CameraPosition.x += m_CameraPosSpeed;
+			m_CameraPosition.x += m_CameraPosSpeed * deltaTime;
 		
 		if (BossEngine::Input::IsKeyPressed(BE_KEY_UP))
-			m_CameraPosition.y += m_CameraPosSpeed;
+			m_CameraPosition.y += m_CameraPosSpeed * deltaTime;
 		else if (BossEngine::Input::IsKeyPressed(BE_KEY_DOWN))
-			m_CameraPosition.y -= m_CameraPosSpeed;
+			m_CameraPosition.y -= m_CameraPosSpeed * deltaTime;
 
 		if (BossEngine::Input::IsKeyPressed(BE_KEY_Q))
-			m_CameraRotation -= m_CameraRotSpeed;
+			m_CameraRotation -= m_CameraRotSpeed * deltaTime;
 		else if (BossEngine::Input::IsKeyPressed(BE_KEY_E))
-			m_CameraRotation += m_CameraRotSpeed;
+			m_CameraRotation += m_CameraRotSpeed * deltaTime;
 
 		// Rendering
 		BossEngine::RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
@@ -145,8 +147,8 @@ private:
 	glm::vec3 m_CameraPosition;
 	float m_CameraRotation = 0.0f;
 
-	float m_CameraPosSpeed = 0.1f;
-	float m_CameraRotSpeed = 0.5f;
+	float m_CameraPosSpeed = 1.0f;
+	float m_CameraRotSpeed = 180.0f;
 };
 
 class Game : public BossEngine::Application
