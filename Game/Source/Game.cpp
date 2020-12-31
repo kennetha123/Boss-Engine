@@ -1,5 +1,9 @@
 #include <BossEngine.h>
+
+#include "Platform/OpenGL/OpenGLShader.h"
+#include "imgui/imgui.h"
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 class ExampleLayer : public BossEngine::Layer
 {
@@ -60,11 +64,12 @@ public:
 			#version 330
 			
 			layout(location = 0) out vec4 color;
-			in vec4 v_Color;
-				
+
+			uniform vec3 u_Color;
+
 			void main()
 			{
-				color = v_Color;
+				color = vec4(u_Color, 1.0);
 			}		
 		)";
 		//////////////////////////////////////////////////////////////////////////////////////////
@@ -97,7 +102,7 @@ public:
 		m_VertexArray->SetIndexBuffer(m_IndexBuffer);
 
 		// Set Vertex and Fragment Shader.
-		m_Shader.reset(new BossEngine::Shader(vertexSource, fragmentSource));
+		m_Shader.reset(BossEngine::Shader::Create(vertexSource, fragmentSource));
 
 		//////////////////////////////////////////////////////////////////////////////////////////
 
@@ -122,6 +127,11 @@ public:
 			m_CameraRotation -= m_CameraRotSpeed * deltaTime;
 		else if (BossEngine::Input::IsKeyPressed(BE_KEY_E))
 			m_CameraRotation += m_CameraRotSpeed * deltaTime;
+
+		if (BossEngine::Input::IsKeyPressed(BE_KEY_LEFT_CONTROL))
+			m_CameraPosition.z -= m_CameraPosSpeed * deltaTime;
+		else if (BossEngine::Input::IsKeyPressed(BE_KEY_LEFT_SHIFT))
+			m_CameraPosition.z += m_CameraPosSpeed * deltaTime;
 
 		///////////////////////////OBJECT INPUT////////////////////////////////
 		if (BossEngine::Input::IsKeyPressed(BE_KEY_A))
@@ -148,11 +158,33 @@ public:
 
 		BossEngine::Renderer::BeginScene(m_Camera);
 
+		glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.05f));
+
+		std::dynamic_pointer_cast<BossEngine::OpenGLShader>(m_Shader)->Bind();
+		std::dynamic_pointer_cast<BossEngine::OpenGLShader>(m_Shader)->UploadUniformFloat3("u_Color", m_ObjectColor);
+
+		for (int x = 0; x < 20; x++)
+		{
+			for (int y = 0; y < 20; y++)
+			{
+				glm::vec3 pos(x * 0.15f, y * 0.15f, 0.0f);
+				glm::mat4 transform = glm::translate(glm::mat4(1.0f), pos) * scale;
+
+				BossEngine::Renderer::Submit(m_Shader, m_VertexArray, transform);
+			}
+
+		}
 		glm::mat4 transform = glm::translate(glm::mat4(1.0f), m_ObjectPosition);
-		
 		BossEngine::Renderer::Submit(m_Shader, m_VertexArray, transform);
-		
+
 		BossEngine::Renderer::EndScene();
+	}
+
+	virtual void OnImGuiRender() override
+	{
+		ImGui::Begin("Settings");
+		ImGui::ColorEdit3("Object Color", glm::value_ptr(m_ObjectColor));
+		ImGui::End();
 	}
 
 	void OnEvent(BossEngine::Event& event) override
@@ -170,12 +202,13 @@ private:
 	float m_CameraRotSpeed = 180.0f;
 
 	////////////////OBJECT///////////////////////////////////
-	std::shared_ptr<BossEngine::Shader> m_Shader;
-	std::shared_ptr<BossEngine::VertexArray> m_VertexArray;
-	std::shared_ptr<BossEngine::VertexBuffer> m_VertexBuffer;
-	std::shared_ptr<BossEngine::IndexBuffer> m_IndexBuffer;
+	BossEngine::Ref<BossEngine::Shader> m_Shader;
+	BossEngine::Ref<BossEngine::VertexArray> m_VertexArray;
+	BossEngine::Ref<BossEngine::VertexBuffer> m_VertexBuffer;
+	BossEngine::Ref<BossEngine::IndexBuffer> m_IndexBuffer;
 
 	glm::vec3 m_ObjectPosition;
+	glm::vec3 m_ObjectColor = { 0.2f, 0.3f,0.8f };
 	float m_ObjectPosSpeed = 1.0f;
 
 };
