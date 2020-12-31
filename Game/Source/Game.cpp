@@ -1,9 +1,10 @@
 #include <BossEngine.h>
+#include <glm/gtc/matrix_transform.hpp>
 
 class ExampleLayer : public BossEngine::Layer
 {
 public:
-	ExampleLayer() : Layer("Example"), m_Camera(-1.6f, 1.6f, -0.9f, 0.9f), m_CameraPosition(0.0f)
+	ExampleLayer() : Layer("Example"), m_Camera(-1.6f, 1.6f, -0.9f, 0.9f), m_CameraPosition(0.0f), m_ObjectPosition(0.0f)
 
 	{
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -43,13 +44,14 @@ public:
 			layout(location = 1) in vec4 a_Color;
 			
 			uniform mat4 u_ViewProjection;
+			uniform mat4 u_Transform;
 
 			out vec4 v_Color;
 
 			void main()
 			{
 				v_Color = a_Color;
-				gl_Position = u_ViewProjection * vec4(a_Position, 1.0);
+				gl_Position = u_ViewProjection * u_Transform * vec4(a_Position, 1.0);
 			}		
 		)";
 
@@ -105,6 +107,7 @@ public:
 	{
 		BE_TRACE("Delta time : {0}s / {1}ms", deltaTime.GetSeconds(), deltaTime.GetMilliSeconds());
 
+		///////////////////////////CAMERA INPUT////////////////////////////////
 		if (BossEngine::Input::IsKeyPressed(BE_KEY_LEFT))
 			m_CameraPosition.x -= m_CameraPosSpeed * deltaTime;
 		else if (BossEngine::Input::IsKeyPressed(BE_KEY_RIGHT))
@@ -120,6 +123,22 @@ public:
 		else if (BossEngine::Input::IsKeyPressed(BE_KEY_E))
 			m_CameraRotation += m_CameraRotSpeed * deltaTime;
 
+		///////////////////////////OBJECT INPUT////////////////////////////////
+		if (BossEngine::Input::IsKeyPressed(BE_KEY_A))
+			m_ObjectPosition.x -= m_ObjectPosSpeed * deltaTime;
+		else if (BossEngine::Input::IsKeyPressed(BE_KEY_D))
+			m_ObjectPosition.x += m_ObjectPosSpeed * deltaTime;
+
+		if (BossEngine::Input::IsKeyPressed(BE_KEY_W))
+			m_ObjectPosition.y += m_ObjectPosSpeed * deltaTime;
+		else if (BossEngine::Input::IsKeyPressed(BE_KEY_S))
+			m_ObjectPosition.y -= m_ObjectPosSpeed * deltaTime;
+
+		//if (BossEngine::Input::IsKeyPressed(BE_KEY_R))
+		//	m_CameraRotation -= m_CameraRotSpeed * deltaTime;
+		//else if (BossEngine::Input::IsKeyPressed(BE_KEY_T))
+		//	m_CameraRotation += m_CameraRotSpeed * deltaTime;
+
 		// Rendering
 		BossEngine::RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
 		BossEngine::RenderCommand::Clear();
@@ -128,7 +147,11 @@ public:
 		m_Camera.SetRotation(m_CameraRotation);
 
 		BossEngine::Renderer::BeginScene(m_Camera);
-		BossEngine::Renderer::Submit(m_Shader, m_VertexArray);
+
+		glm::mat4 transform = glm::translate(glm::mat4(1.0f), m_ObjectPosition);
+		
+		BossEngine::Renderer::Submit(m_Shader, m_VertexArray, transform);
+		
 		BossEngine::Renderer::EndScene();
 	}
 
@@ -138,17 +161,23 @@ public:
 	}
 
 private:
-	std::shared_ptr<BossEngine::Shader> m_Shader;
-	std::shared_ptr<BossEngine::VertexArray> m_VertexArray;
-	std::shared_ptr<BossEngine::VertexBuffer> m_VertexBuffer;
-	std::shared_ptr<BossEngine::IndexBuffer> m_IndexBuffer;
-
+	////////////////CAMERA///////////////////////////////////
 	BossEngine::OrthographicCamera m_Camera;
 	glm::vec3 m_CameraPosition;
 	float m_CameraRotation = 0.0f;
 
 	float m_CameraPosSpeed = 1.0f;
 	float m_CameraRotSpeed = 180.0f;
+
+	////////////////OBJECT///////////////////////////////////
+	std::shared_ptr<BossEngine::Shader> m_Shader;
+	std::shared_ptr<BossEngine::VertexArray> m_VertexArray;
+	std::shared_ptr<BossEngine::VertexBuffer> m_VertexBuffer;
+	std::shared_ptr<BossEngine::IndexBuffer> m_IndexBuffer;
+
+	glm::vec3 m_ObjectPosition;
+	float m_ObjectPosSpeed = 1.0f;
+
 };
 
 class Game : public BossEngine::Application
