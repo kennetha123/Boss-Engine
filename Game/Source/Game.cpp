@@ -25,13 +25,13 @@ public:
 		// Verts & Indices
 
 		// Vertices data, this will be setup in DCC (digital content creator)
-		float vertices[4 * 7] =
+		float vertices[5 * 4] =
 		{
-			// Position				// Color
-		   -0.75f, -0.75f, 0.0f,	 1.0f,	0.0f, 0.0f, 1.0f,	// bottom left
-			0.75f, -0.75f, 0.0f,	 0.0f,  0.0f, 1.0f, 1.0f,	// bottom right
-			0.75f,  0.75f, 0.0f,	 0.0f,  1.0f, 0.0f, 1.0f,	// top right
-		   -0.75f,  0.75f, 0.0f,	 0.0f,  0.0f, 1.0f, 1.0f,	// top left
+			// Position				// Texture Coordinate
+		   -0.75f, -0.75f, 0.0f,	0.0f, 0.0f,	// bottom left
+			0.75f, -0.75f, 0.0f,	1.0f, 0.0f,	// bottom right
+			0.75f,  0.75f, 0.0f,	1.0f, 1.0f,	// top right
+		   -0.75f,  0.75f, 0.0f,	0.0f, 1.0f,	// top left
 
 		};
 
@@ -59,7 +59,6 @@ public:
 			}		
 		)";
 
-
 		std::string fragmentSource = R"(
 			#version 330
 			
@@ -72,9 +71,48 @@ public:
 				color = vec4(u_Color, 1.0);
 			}		
 		)";
+
+		////////////////////////////TEXTURE COORD SHADER//////////////////////////////////
+
+		std::string textureVertexSource = R"(
+			#version 330
+			
+			layout(location = 0) in vec3 a_Position;
+			layout(location = 1) in vec2 a_TexCoord;
+			
+			uniform mat4 u_ViewProjection;
+			uniform mat4 u_Transform;
+
+			out vec2 v_TexCoord;
+		
+			void main()
+			{
+				v_TexCoord = a_TexCoord;
+				gl_Position = u_ViewProjection * u_Transform * vec4(a_Position, 1.0);
+			}		
+		)";
+
+
+		std::string textureFragmentSource = R"(
+			#version 330
+			
+			layout(location = 0) out vec4 color;
+
+			in vec2 v_TexCoord;
+
+			uniform sampler2D u_Texture;
+
+			void main()
+			{
+				color = texture(u_Texture, v_TexCoord);
+			}		
+		)";
+
+		//////////////////////////////////////////////////////////////////////////////////////////
+		//////////////////////////////////FIRST OBJECT////////////////////////////////////////////
 		//////////////////////////////////////////////////////////////////////////////////////////
 
-				// Create Vertex Array
+		// Create Vertex Array
 		m_VertexArray.reset(BossEngine::VertexArray::Create());
 
 		// Create Vertex Buffer (need vertices data)
@@ -85,7 +123,7 @@ public:
 		BossEngine::BufferLayout layout =
 		{
 			{ BossEngine::ShaderDataType::Float3, "a_Position" },
-			{ BossEngine::ShaderDataType::Float4, "a_Color" }
+			{ BossEngine::ShaderDataType::Float2, "a_TexCoord" }
 		};
 
 		// Set the layout into our Vertex Buffer.
@@ -102,7 +140,18 @@ public:
 		m_VertexArray->SetIndexBuffer(m_IndexBuffer);
 
 		// Set Vertex and Fragment Shader.
-		m_Shader.reset(BossEngine::Shader::Create(vertexSource, fragmentSource));
+		m_ShaderObject.reset(BossEngine::Shader::Create(vertexSource, fragmentSource));
+
+		//////////////////////////////////////////////////////////////////////////////////////////
+		////////////////////////////////TEXTURE OBJECT////////////////////////////////////////////
+		//////////////////////////////////////////////////////////////////////////////////////////
+
+		m_ShaderTexture.reset(BossEngine::Shader::Create(textureVertexSource, textureFragmentSource));
+
+		m_Texture = BossEngine::Texture2D::Create("container.jpg");
+
+		std::dynamic_pointer_cast<BossEngine::OpenGLShader>(m_ShaderTexture)->Bind();
+		std::dynamic_pointer_cast<BossEngine::OpenGLShader>(m_ShaderTexture)->UploadUniformInt("u_Texture", 0);
 
 		//////////////////////////////////////////////////////////////////////////////////////////
 
@@ -160,8 +209,8 @@ public:
 
 		glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.05f));
 
-		std::dynamic_pointer_cast<BossEngine::OpenGLShader>(m_Shader)->Bind();
-		std::dynamic_pointer_cast<BossEngine::OpenGLShader>(m_Shader)->UploadUniformFloat3("u_Color", m_ObjectColor);
+		std::dynamic_pointer_cast<BossEngine::OpenGLShader>(m_ShaderObject)->Bind();
+		std::dynamic_pointer_cast<BossEngine::OpenGLShader>(m_ShaderObject)->UploadUniformFloat3("u_Color", m_ObjectColor);
 
 		for (int x = 0; x < 20; x++)
 		{
@@ -170,12 +219,14 @@ public:
 				glm::vec3 pos(x * 0.15f, y * 0.15f, 0.0f);
 				glm::mat4 transform = glm::translate(glm::mat4(1.0f), pos) * scale;
 
-				BossEngine::Renderer::Submit(m_Shader, m_VertexArray, transform);
+				BossEngine::Renderer::Submit(m_ShaderObject, m_VertexArray, transform);
 			}
 
 		}
-		glm::mat4 transform = glm::translate(glm::mat4(1.0f), m_ObjectPosition);
-		BossEngine::Renderer::Submit(m_Shader, m_VertexArray, transform);
+
+		m_Texture->Bind();
+
+		BossEngine::Renderer::Submit(m_ShaderTexture, m_VertexArray, glm::scale(glm::mat4(1.0f), glm::vec3(1.5f)));
 
 		BossEngine::Renderer::EndScene();
 	}
@@ -202,10 +253,14 @@ private:
 	float m_CameraRotSpeed = 180.0f;
 
 	////////////////OBJECT///////////////////////////////////
-	BossEngine::Ref<BossEngine::Shader> m_Shader;
+	BossEngine::Ref<BossEngine::Shader> m_ShaderObject;
 	BossEngine::Ref<BossEngine::VertexArray> m_VertexArray;
 	BossEngine::Ref<BossEngine::VertexBuffer> m_VertexBuffer;
 	BossEngine::Ref<BossEngine::IndexBuffer> m_IndexBuffer;
+
+	/////////TEXTURE OBJECT//////////////////////////////////
+	BossEngine::Ref<BossEngine::Shader> m_ShaderTexture;
+	BossEngine::Ref<BossEngine::Texture> m_Texture;
 
 	glm::vec3 m_ObjectPosition;
 	glm::vec3 m_ObjectColor = { 0.2f, 0.3f,0.8f };
