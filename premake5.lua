@@ -19,6 +19,7 @@ IncludeDir["GLFW"] = "BossEngine/Externals/GLFW/include"
 IncludeDir["Glad"] = "BossEngine/Externals/Glad/include"
 IncludeDir["ImGui"] = "BossEngine/Externals/imgui"
 IncludeDir["glm"] = "BossEngine/Externals/glm"
+IncludeDir["stb_image"] = "BossEngine/Externals/stb_image"
 
 include "BossEngine/Externals/GLFW"
 include "BossEngine/Externals/Glad"
@@ -49,6 +50,8 @@ project "BossEngine"
 	{
 		"%{prj.name}/Source/**.h",
 		"%{prj.name}/Source/**.cpp",
+		"%{prj.name}/Externals/stb_image/**.cpp",
+		"%{prj.name}/Externals/stb_image/**.h",
 		"%{prj.name}/Externals/glm/glm/**.hpp",		
 		"%{prj.name}/Externals/glm/glm/**.inl"		
 	}
@@ -66,7 +69,8 @@ project "BossEngine"
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.Glad}",
 		"%{IncludeDir.ImGui}",
-		"%{IncludeDir.glm}"
+		"%{IncludeDir.glm}",
+		"%{IncludeDir.stb_image}"
 	}
 	
 	links

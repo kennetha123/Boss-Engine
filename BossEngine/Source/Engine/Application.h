@@ -6,17 +6,13 @@
 #include "Engine/Events/Event.h"
 #include "Engine/Events/ApplicationEvent.h"
 
+#include "Engine/Core/DeltaTime.h"
+
 #include "Engine/ImGui/ImGuiLayer.h"
-
-#include "Engine/Renderer/Shader.h"
-#include "Engine/Renderer/Buffer.h"
-#include "Engine/Renderer/VertexArray.h"
-
-#include "Engine/Renderer/OrthographicCamera.h"
 
 namespace BossEngine
 {
-	class BE_API Application
+	class Application
 	{
 	public:
 		Application();
@@ -41,12 +37,7 @@ namespace BossEngine
 		bool m_Running = true;
 		LayerStack m_LayerStack;
 
-		std::shared_ptr<Shader> m_Shader;
-		std::shared_ptr<VertexArray> m_VertexArray;
-		std::shared_ptr<VertexBuffer> m_VertexBuffer;
-		std::shared_ptr<IndexBuffer> m_IndexBuffer;
-
-		OrthographicCamera m_Camera;
+		float m_LastFrameTime = 0.0f;
 
 		static Application* Instance;
 	};
