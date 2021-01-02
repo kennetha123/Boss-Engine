@@ -39,7 +39,7 @@ public:
 		unsigned int indices[6] = { 0, 1, 2, 2, 3, 0 };
 
 		//////////////////////////////////////////////////////////////////////////////////////////
-				// Vertex Shader and Fragment Shader.
+		// Vertex Shader and Fragment Shader.
 
 		std::string vertexSource = R"(
 			#version 330
@@ -72,44 +72,9 @@ public:
 			}		
 		)";
 
-		////////////////////////////TEXTURE COORD SHADER//////////////////////////////////
-
-		std::string textureVertexSource = R"(
-			#version 330
-			
-			layout(location = 0) in vec3 a_Position;
-			layout(location = 1) in vec2 a_TexCoord;
-			
-			uniform mat4 u_ViewProjection;
-			uniform mat4 u_Transform;
-
-			out vec2 v_TexCoord;
-		
-			void main()
-			{
-				v_TexCoord = a_TexCoord;
-				gl_Position = u_ViewProjection * u_Transform * vec4(a_Position, 1.0);
-			}		
-		)";
-
-
-		std::string textureFragmentSource = R"(
-			#version 330
-			
-			layout(location = 0) out vec4 color;
-
-			in vec2 v_TexCoord;
-
-			uniform sampler2D u_Texture;
-
-			void main()
-			{
-				color = texture(u_Texture, v_TexCoord);
-			}		
-		)";
 
 		//////////////////////////////////////////////////////////////////////////////////////////
-		//////////////////////////////////FIRST OBJECT////////////////////////////////////////////
+		///////////////////////////////////DATA OBJECT////////////////////////////////////////////
 		//////////////////////////////////////////////////////////////////////////////////////////
 
 		// Create Vertex Array
@@ -139,6 +104,10 @@ public:
 		// Vertex Array set the IBO / EBO.
 		m_VertexArray->SetIndexBuffer(m_IndexBuffer);
 
+		//////////////////////////////////////////////////////////////////////////////////////////
+		/////////////////////////////////SQUARE OBJECT////////////////////////////////////////////
+		//////////////////////////////////////////////////////////////////////////////////////////
+
 		// Set Vertex and Fragment Shader.
 		m_ShaderObject.reset(BossEngine::Shader::Create(vertexSource, fragmentSource));
 
@@ -146,11 +115,14 @@ public:
 		////////////////////////////////TEXTURE OBJECT////////////////////////////////////////////
 		//////////////////////////////////////////////////////////////////////////////////////////
 
-		m_ShaderTexture.reset(BossEngine::Shader::Create(textureVertexSource, textureFragmentSource));
+		// Load Shader Asset.
+		m_ShaderTexture.reset(BossEngine::Shader::Create("Assets/Shaders/Texture.glsl"));
 
+		// Load Texture Asset.
 		m_Texture = BossEngine::Texture2D::Create("Assets/Texture/container.jpg");
 		m_TextureOverlay = BossEngine::Texture2D::Create("Assets/Texture/awesomeface.png");
 
+		// Binding the Shader and send information to glsl file.
 		std::dynamic_pointer_cast<BossEngine::OpenGLShader>(m_ShaderTexture)->Bind();
 		std::dynamic_pointer_cast<BossEngine::OpenGLShader>(m_ShaderTexture)->UploadUniformInt("u_Texture", 0);
 
@@ -163,6 +135,7 @@ public:
 		BE_TRACE("Delta time : {0}s / {1}ms", deltaTime.GetSeconds(), deltaTime.GetMilliSeconds());
 
 		///////////////////////////CAMERA INPUT////////////////////////////////
+
 		if (BossEngine::Input::IsKeyPressed(BE_KEY_LEFT))
 			m_CameraPosition.x -= m_CameraPosSpeed * deltaTime;
 		else if (BossEngine::Input::IsKeyPressed(BE_KEY_RIGHT))
@@ -184,6 +157,7 @@ public:
 			m_CameraPosition.z += m_CameraPosSpeed * deltaTime;
 
 		///////////////////////////OBJECT INPUT////////////////////////////////
+
 		if (BossEngine::Input::IsKeyPressed(BE_KEY_A))
 			m_ObjectPosition.x -= m_ObjectPosSpeed * deltaTime;
 		else if (BossEngine::Input::IsKeyPressed(BE_KEY_D))
@@ -194,45 +168,54 @@ public:
 		else if (BossEngine::Input::IsKeyPressed(BE_KEY_S))
 			m_ObjectPosition.y -= m_ObjectPosSpeed * deltaTime;
 
-		//if (BossEngine::Input::IsKeyPressed(BE_KEY_R))
-		//	m_CameraRotation -= m_CameraRotSpeed * deltaTime;
-		//else if (BossEngine::Input::IsKeyPressed(BE_KEY_T))
-		//	m_CameraRotation += m_CameraRotSpeed * deltaTime;
+		///////////////////////////RENDERING///////////////////////////////////
 
-		// Rendering
+		// Clear background
 		BossEngine::RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
 		BossEngine::RenderCommand::Clear();
 
+		// Set camera position and rotation
 		m_Camera.SetPosition(m_CameraPosition);
 		m_Camera.SetRotation(m_CameraRotation);
-
-		BossEngine::Renderer::BeginScene(m_Camera);
-
-		glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.05f));
-
-		std::dynamic_pointer_cast<BossEngine::OpenGLShader>(m_ShaderObject)->Bind();
-		std::dynamic_pointer_cast<BossEngine::OpenGLShader>(m_ShaderObject)->UploadUniformFloat3("u_Color", m_ObjectColor);
-
-		for (int x = 0; x < 20; x++)
+		
 		{
-			for (int y = 0; y < 20; y++)
-			{
-				glm::vec3 pos(x * 0.15f, y * 0.15f, 0.0f);
-				glm::mat4 transform = glm::translate(glm::mat4(1.0f), pos) * scale;
+			// Start Rendering Camera view
+			BossEngine::Renderer::BeginScene(m_Camera);
 
-				BossEngine::Renderer::Submit(m_ShaderObject, m_VertexArray, transform);
+			// Set up scale variable to use for scaling object
+			glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.05f));
+
+
+			// Here we binding color of m_ShaderObject
+			std::dynamic_pointer_cast<BossEngine::OpenGLShader>(m_ShaderObject)->Bind();
+			std::dynamic_pointer_cast<BossEngine::OpenGLShader>(m_ShaderObject)->UploadUniformFloat3("u_Color", m_ObjectColor);
+
+			// Create 20 * 20 square
+			for (int x = 0; x < 20; x++)
+			{
+				for (int y = 0; y < 20; y++)
+				{
+					glm::vec3 pos(x * 0.15f, y * 0.15f, 0.0f);
+					glm::mat4 transform = glm::translate(glm::mat4(1.0f), pos) * scale;
+
+					BossEngine::Renderer::Submit(m_ShaderObject, m_VertexArray, transform);
+				}
+
 			}
 
+			// Set transform of Texture position
+			glm::mat4 transform = glm::translate(glm::mat4(1.0f), m_ObjectPosition);
+
+			// Texture binding with shader and vertices
+			m_Texture->Bind();
+			BossEngine::Renderer::Submit(m_ShaderTexture, m_VertexArray, transform);
+
+			// Texture overlay binding with shader and vertices
+			m_TextureOverlay->Bind();
+			BossEngine::Renderer::Submit(m_ShaderTexture, m_VertexArray, transform);
+
+			BossEngine::Renderer::EndScene();
 		}
-
-		// Texture binding with shader and vertices
-		m_Texture->Bind();
-		BossEngine::Renderer::Submit(m_ShaderTexture, m_VertexArray, glm::scale(glm::mat4(1.0f), glm::vec3(1.0f)));
-
-		m_TextureOverlay->Bind();
-		BossEngine::Renderer::Submit(m_ShaderTexture, m_VertexArray, glm::scale(glm::mat4(1.0f), glm::vec3(1.0f)));
-
-		BossEngine::Renderer::EndScene();
 	}
 
 	virtual void OnImGuiRender() override
@@ -249,6 +232,7 @@ public:
 
 private:
 	////////////////CAMERA///////////////////////////////////
+
 	BossEngine::OrthographicCamera m_Camera;
 	glm::vec3 m_CameraPosition;
 	float m_CameraRotation = 0.0f;
@@ -257,17 +241,19 @@ private:
 	float m_CameraRotSpeed = 180.0f;
 
 	////////////////OBJECT///////////////////////////////////
+
 	BossEngine::Ref<BossEngine::Shader> m_ShaderObject;
 	BossEngine::Ref<BossEngine::VertexArray> m_VertexArray;
 	BossEngine::Ref<BossEngine::VertexBuffer> m_VertexBuffer;
 	BossEngine::Ref<BossEngine::IndexBuffer> m_IndexBuffer;
 
 	/////////TEXTURE OBJECT//////////////////////////////////
+
 	BossEngine::Ref<BossEngine::Shader> m_ShaderTexture;
 	BossEngine::Ref<BossEngine::Texture> m_Texture;
 
 	/////////TEXTURE OBJECT//////////////////////////////////
-//	BossEngine::Ref<BossEngine::Shader> m_ShaderTexture;
+
 	BossEngine::Ref<BossEngine::Texture> m_TextureOverlay;
 
 	glm::vec3 m_ObjectPosition;
