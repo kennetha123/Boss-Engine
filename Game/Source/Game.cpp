@@ -148,7 +148,8 @@ public:
 
 		m_ShaderTexture.reset(BossEngine::Shader::Create(textureVertexSource, textureFragmentSource));
 
-		m_Texture = BossEngine::Texture2D::Create("container.jpg");
+		m_Texture = BossEngine::Texture2D::Create("Assets/Texture/container.jpg");
+		m_TextureOverlay = BossEngine::Texture2D::Create("Assets/Texture/awesomeface.png");
 
 		std::dynamic_pointer_cast<BossEngine::OpenGLShader>(m_ShaderTexture)->Bind();
 		std::dynamic_pointer_cast<BossEngine::OpenGLShader>(m_ShaderTexture)->UploadUniformInt("u_Texture", 0);
@@ -224,9 +225,12 @@ public:
 
 		}
 
+		// Texture binding with shader and vertices
 		m_Texture->Bind();
+		BossEngine::Renderer::Submit(m_ShaderTexture, m_VertexArray, glm::scale(glm::mat4(1.0f), glm::vec3(1.0f)));
 
-		BossEngine::Renderer::Submit(m_ShaderTexture, m_VertexArray, glm::scale(glm::mat4(1.0f), glm::vec3(1.5f)));
+		m_TextureOverlay->Bind();
+		BossEngine::Renderer::Submit(m_ShaderTexture, m_VertexArray, glm::scale(glm::mat4(1.0f), glm::vec3(1.0f)));
 
 		BossEngine::Renderer::EndScene();
 	}
@@ -261,6 +265,10 @@ private:
 	/////////TEXTURE OBJECT//////////////////////////////////
 	BossEngine::Ref<BossEngine::Shader> m_ShaderTexture;
 	BossEngine::Ref<BossEngine::Texture> m_Texture;
+
+	/////////TEXTURE OBJECT//////////////////////////////////
+//	BossEngine::Ref<BossEngine::Shader> m_ShaderTexture;
+	BossEngine::Ref<BossEngine::Texture> m_TextureOverlay;
 
 	glm::vec3 m_ObjectPosition;
 	glm::vec3 m_ObjectColor = { 0.2f, 0.3f,0.8f };

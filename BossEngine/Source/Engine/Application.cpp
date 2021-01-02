@@ -27,6 +27,8 @@ namespace BossEngine
 		m_Window->SetEventCallback(BIND_EVENT_FN(OnEvent));
 		m_Window->SetVSync(true);
 
+		Renderer::Init();
+
 		// Setup ImGui on Application.
 		m_ImGuiLayer = new ImGuiLayer();
 		PushOverlay(m_ImGuiLayer);
