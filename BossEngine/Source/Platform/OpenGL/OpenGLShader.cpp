@@ -24,9 +24,17 @@ namespace BossEngine
 		std::string source = ReadFile(path);
 		auto shaderSources = PreProcess(source);
 		Compile(shaderSources);
+
+		// Extract name from path
+		auto lastSlash = path.find_last_of("/\\");
+		lastSlash = lastSlash == std::string::npos ? 0 : lastSlash + 1;
+		auto lastDot = path.rfind('.');
+		auto count = lastDot == std::string::npos ? path.size() - lastSlash : lastDot - lastSlash;
+		m_Name = path.substr(lastSlash, count);
 	}
 
-	OpenGLShader::OpenGLShader(const std::string& vertexSource, const std::string& fragmentSource)
+	OpenGLShader::OpenGLShader(const std::string& name, const std::string& vertexSource, const std::string& fragmentSource)
+		: m_Name(name)
 	{
 		std::unordered_map<GLenum, std::string> sources;
 		sources[GL_VERTEX_SHADER] = vertexSource;
@@ -42,7 +50,7 @@ namespace BossEngine
 	std::string OpenGLShader::ReadFile(const std::string& path)
 	{
 		std::string result;
-		std::ifstream in(path, std::ios::in, std::ios::binary);
+		std::ifstream in(path, std::ios::in | std::ios::binary);
 		if (in)
 		{
 			in.seekg(0, std::ios::end);
@@ -85,7 +93,9 @@ namespace BossEngine
 	void OpenGLShader::Compile(const std::unordered_map<GLenum, std::string>& shaderSources)
 	{
 		GLuint program = glCreateProgram();
-		std::vector<GLenum> glShaderID(shaderSources.size());
+		BE_CORE_ASSERT(shaderSources.size() <= 2, "Only support 2 Shader for now.");
+		std::array<GLenum, 2> glShaderID;
+		int glShaderIDIndex = 0;
 
 		for (auto& keyValue : shaderSources)
 		{
@@ -121,7 +131,7 @@ namespace BossEngine
 				break;
 			}
 			glAttachShader(program, shader);
-			glShaderID.push_back(shader);
+			glShaderID[glShaderIDIndex++] = (shader);
 		}
 
 		m_RendererID = program;

@@ -1,9 +1,13 @@
 #include <BossEngine.h>
 
 #include "Platform/OpenGL/OpenGLShader.h"
+
 #include "imgui/imgui.h"
+
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
+#include "Engine/Renderer/Shader.h"
 
 class ExampleLayer : public BossEngine::Layer
 {
@@ -109,22 +113,22 @@ public:
 		//////////////////////////////////////////////////////////////////////////////////////////
 
 		// Set Vertex and Fragment Shader.
-		m_ShaderObject.reset(BossEngine::Shader::Create(vertexSource, fragmentSource));
+		m_ShaderObject = BossEngine::Shader::Create("GameObject", vertexSource, fragmentSource);
 
 		//////////////////////////////////////////////////////////////////////////////////////////
 		////////////////////////////////TEXTURE OBJECT////////////////////////////////////////////
 		//////////////////////////////////////////////////////////////////////////////////////////
 
 		// Load Shader Asset.
-		m_ShaderTexture.reset(BossEngine::Shader::Create("Assets/Shaders/Texture.glsl"));
+		auto textureShader = m_ShaderLibrary.Load("Assets/Shaders/Texture.glsl");
 
 		// Load Texture Asset.
 		m_Texture = BossEngine::Texture2D::Create("Assets/Texture/container.jpg");
 		m_TextureOverlay = BossEngine::Texture2D::Create("Assets/Texture/awesomeface.png");
 
 		// Binding the Shader and send information to glsl file.
-		std::dynamic_pointer_cast<BossEngine::OpenGLShader>(m_ShaderTexture)->Bind();
-		std::dynamic_pointer_cast<BossEngine::OpenGLShader>(m_ShaderTexture)->UploadUniformInt("u_Texture", 0);
+		std::dynamic_pointer_cast<BossEngine::OpenGLShader>(textureShader)->Bind();
+		std::dynamic_pointer_cast<BossEngine::OpenGLShader>(textureShader)->UploadUniformInt("u_Texture", 0);
 
 		//////////////////////////////////////////////////////////////////////////////////////////
 
@@ -206,13 +210,16 @@ public:
 			// Set transform of Texture position
 			glm::mat4 transform = glm::translate(glm::mat4(1.0f), m_ObjectPosition);
 
+			// Tell which shader we want to use, in this case 'Texture.glsl'
+			auto textureShader = m_ShaderLibrary.Get("Texture");
+
 			// Texture binding with shader and vertices
 			m_Texture->Bind();
-			BossEngine::Renderer::Submit(m_ShaderTexture, m_VertexArray, transform);
+			BossEngine::Renderer::Submit(textureShader, m_VertexArray, transform);
 
 			// Texture overlay binding with shader and vertices
 			m_TextureOverlay->Bind();
-			BossEngine::Renderer::Submit(m_ShaderTexture, m_VertexArray, transform);
+			BossEngine::Renderer::Submit(textureShader, m_VertexArray, transform);
 
 			BossEngine::Renderer::EndScene();
 		}
@@ -248,8 +255,8 @@ private:
 	BossEngine::Ref<BossEngine::IndexBuffer> m_IndexBuffer;
 
 	/////////TEXTURE OBJECT//////////////////////////////////
-
-	BossEngine::Ref<BossEngine::Shader> m_ShaderTexture;
+	
+	BossEngine::ShaderLibrary m_ShaderLibrary;
 	BossEngine::Ref<BossEngine::Texture> m_Texture;
 
 	/////////TEXTURE OBJECT//////////////////////////////////
