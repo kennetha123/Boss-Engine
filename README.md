@@ -1,7 +1,6 @@
 # Boss-Engine
 
 An Engine for learning purpose, written in C++ and aimed to be a lightweight, focused on Windows architecture.
-This engine will following what Unity 3D engine core features had, in the future.
 
 ## Required Tool :
 
